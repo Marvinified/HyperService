@@ -5,6 +5,8 @@ services:
     restart: always
     ports:
       - '4466:4466'
+    networks: 
+      - internal
     environment:
       PRISMA_CONFIG: |
         managementApiSecret: softkey
@@ -19,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
     # command: ./wait-for-it.sh prisma:4466 -- npm run deploy
-    command: ./wait-for-it.sh prisma:4466 -- npm run dev:up
+    command: ./wait-for-it.sh prisma:4466 -t 30 -- npm run dev:up
     volumes:
       - .:/usr/app
       - /usr/app/node_modules
@@ -32,7 +34,10 @@ services:
       - gql-auth
     environment: 
       PRISMA_MANAGEMENT_API_SECRET: softkey
-      KAFKA_CLUSTER:  host.docker.internal:9092
+      KAFKA_CLUSTER:  kafka:9092
+    networks: 
+      - internal
+      # - bridge
   mongo:
     image: mongo:3.6
     restart: always
@@ -41,7 +46,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: prisma
     ports:
       - '27017:27017'
+    networks: 
+      - internal
     volumes:
       - mongo:/var/lib/mongo/auth
 volumes:
   mongo: ~
+networks: 
+  internal:
+    external: true
+    name: internal
