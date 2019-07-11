@@ -4,9 +4,9 @@ const registerConsumers = require('../registerConsumers')
 const fs = require('fs')
 let topicsToCreate = fs.readFileSync(__dirname + '/../topics.json');
 
-module.exports = () => {
+module.exports = (prisma) => {
 
-    registerConsumers(consume)
+    registerConsumers(consume, prisma)
 
     const topics = JSON.parse(topicsToCreate)
     

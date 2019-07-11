@@ -6,7 +6,7 @@ const resolvers = {
     },
     Mutation: {
         createUser(root, args, context) {
-            context.producer.send([{ topic: 'log', messages: 'There', partition: 0 }], (err, data) => {
+            context.producer.send([{ topic: 'newUserCreated', messages: 'There', partition: 0 }], (err, data) => {
                 console.log({ err, data })
             })
             return context.prisma.createUser({ name: args.name })
