@@ -1,11 +1,12 @@
 version: '3.5'
 services:
-  gql-auth:
+  # Prisma server
+  prisma-server: # <--- change this to avoid conflict
     image: prismagraphql/prisma:1.34
     restart: always
     ports:
       - '4466:4466'
-    networks: 
+    networks:
       - internal
     environment:
       PRISMA_CONFIG: |
@@ -13,32 +14,32 @@ services:
         port: 4466
         databases:
           default:
-            connector: mongo
-            uri: mongodb://prisma:prisma@mongo
+            connector: mongo 
+            uri: mongodb://prisma:prisma@service-db # <--- change this to the name of the db image like this => uri: mongodb://prisma:prisma@name
+  # Main Service
   auth-service:
     restart: always
     build: 
       context: .
       dockerfile: Dockerfile
-    # command: ./wait-for-it.sh prisma:4466 -- npm run deploy
-    command: ./wait-for-it.sh prisma:4466 -t 30 -- npm run dev:up
+    # command: ./wait-for-it.sh prisma:4466 -- npm run deploy #use this for production
+    command: ./wait-for-it.sh prisma:4466 -- npm run dev:up  #use this for production
     volumes:
       - .:/usr/app
       - /usr/app/node_modules
       - /usr/app/generated/prisma-client
     ports:
-      - "5000:4000"
+      - "5000:4000" # <--- change this port mapping if you are running something on port 5000
     links: 
-      - "gql-auth:prisma"
+      - "prisma-server:prisma" # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
     depends_on: 
-      - gql-auth
+      - prisma-server # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
     environment: 
       PRISMA_MANAGEMENT_API_SECRET: softkey
-      KAFKA_CLUSTER:  kafka:9092
+      KAFKA_CLUSTER: kafka:9092 # <-- kafka-service name as host, if kafka is in the same network else add a host mapping
     networks: 
       - internal
-      # - bridge
-  mongo:
+  service-db: # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
     image: mongo:3.6
     restart: always
     environment:
@@ -49,10 +50,10 @@ services:
     networks: 
       - internal
     volumes:
-      - mongo:/var/lib/mongo/auth
+      - service-db:/var/lib/mongo/auth
 volumes:
-  mongo: ~
+  service-db: ~
 networks: 
-  internal:
+  internal: # <-- create a bridge network
     external: true
     name: internal
