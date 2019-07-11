@@ -1,8 +1,8 @@
 const kafka = require('kafka-node');
 const Consumer = kafka.Consumer;
-const client = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_CLUSTER });
 
 module.exports = (topics, callback) => {
+    const client = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_CLUSTER });
     const consumer = new Consumer(
         client,
         topics,
