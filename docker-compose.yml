@@ -4,8 +4,6 @@ services:
   prisma-server: # <--- change this to avoid conflict
     image: prismagraphql/prisma:1.34
     restart: always
-    ports:
-      - '4466:4466'
     networks:
       - internal
     environment:
@@ -17,7 +15,7 @@ services:
             connector: mongo 
             uri: mongodb://prisma:prisma@service-db # <--- change this to the name of the db image like this => uri: mongodb://prisma:prisma@name
   # Main Service
-  auth-service:
+  auth-service: # <--- change this to avoid conflict
     restart: always
     build: 
       context: .
@@ -29,11 +27,11 @@ services:
       - /usr/app/node_modules
       - /usr/app/generated/prisma-client
     ports:
-      - "5000:4000" # <--- change this port mapping if you are running something on port 5000
+      - "5002:4000" # <--- change this port mapping if you are running something on port 5000
     links: 
-      - "prisma-server:prisma" # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
+      - "prisma-server:prisma" # <--- change this  to correspond with the prisma server name like this  "my-prisma-server:prisma"
     depends_on: 
-      - prisma-server # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
+      - prisma-server # <--- change this to correspond with the prisma server name like this  "my-prisma-server"
     environment: 
       PRISMA_MANAGEMENT_API_SECRET: softkey
       KAFKA_CLUSTER: kafka:9092 # <-- kafka-service name as host, if kafka is in the same network else add a host mapping
@@ -45,15 +43,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: prisma
       MONGO_INITDB_ROOT_PASSWORD: prisma
-    ports:
-      - '27017:27017'
     networks: 
-      - internal
+      - internal 
     volumes:
-      - service-db:/var/lib/mongo/auth
+      - service-db:/var/lib/mongo/auth #<---- change this too
 volumes:
-  service-db: ~
+  service-db: ~ #<---- and change this too
 networks: 
-  internal: # <-- create a bridge network
+  internal: # <-- create a bridge network 
     external: true
     name: internal
