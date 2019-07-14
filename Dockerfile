@@ -5,7 +5,7 @@ WORKDIR /usr/app
 
 COPY . .
 COPY package.json .
-COPY src/kafka/topics.json src/kafka/
+# COPY src/kafka/topics.json src/kafka/
 # COPY wait-for-it.sh .
 # RUN chmod +x ./wait-for-it.sh
 

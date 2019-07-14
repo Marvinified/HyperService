@@ -1,7 +1,0 @@
-[
-    {
-        "topic": "log",
-        "partitions": 1,
-        "replicationFactor": 2
-    }
-]

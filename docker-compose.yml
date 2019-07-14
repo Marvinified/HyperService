@@ -34,7 +34,11 @@ services:
       - prisma-server # <--- change this to correspond with the prisma server name like this  "my-prisma-server"
     environment: 
       PRISMA_MANAGEMENT_API_SECRET: softkey
-      KAFKA_CLUSTER: kafka:9092 # <-- kafka-service name as host, if kafka is in the same network else add a host mapping
+      KAFKA_CLUSTER: kafka:9092
+      SCHEMA_REGISTRY: http://registry:8081
+    extra_hosts:  #<--- use this if kafka is not on the same host and docker network
+      - "kafka:35.246.90.122"
+      - "registry:35.246.90.122"
     networks: 
       - internal
   service-db: # <--- change this to avoid conflict and to correspond with the prisma server name like this  "my-prisma-server:prisma"
