@@ -13,13 +13,26 @@ producer.on('error', function (error) {
     console.log({ error })
 });
 
-const publish = ({messages, topic, partition}, callback) => {
+const publish = ({ messages, topic, partition }, callback) => {
     schemaRegistry
         .encodeBySubject(messages, `${topic}-value`)
-        .then(schemaRegistryAvroBuffer => console.log(schemaRegistryAvroBuffer))
-        .catch(err => console.log(err.message))
+        .then(schemaRegistryAvroBuffer => {
+            console.log(schemaRegistryAvroBuffer)
+            producer.send([{ topic, messages: schemaRegistryAvroBuffer }], (error, data) => {
+                if (error) {
+                    callback({ error })
+                }
+                callback({ data })
+            })
+        })
+        .catch(error => {
+            console.log(error.message)
+            callback({ error })
+
+        })
 
 }
 
-
-module.exports = producer
+module.exports = {
+    publish
+}

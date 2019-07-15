@@ -1,5 +1,8 @@
 const kafka = require('kafka-node');
 const Consumer = kafka.Consumer;
+const { SchemaRegistryClient } = require('schema-registry-client');
+const schemaRegistry = SchemaRegistryClient.create(process.env.SCHEMA_REGISTRY);
+
 
 module.exports = (topics, callback) => {
     const client = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_CLUSTER });
@@ -21,6 +24,14 @@ module.exports = (topics, callback) => {
 
     consumer.on('message', function (message) {
         console.log(`incoming message on topics: ${JSON.stringify(topics)}`);
-        callback({ message })
+        schemaRegistry
+            .decode(Buffer.from(message.value))
+            .then(message => {
+                callback({ message })
+            })
+            .catch(error => {
+                console.log(error.message)
+                callback({ error })
+            })
     });
 }
